@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>借金管理</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.3.2/css/bulma.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+<h1 class="title">借金管理</h1>
+<span id="me">Loading...</span>
+<form id="debtForm" name="debtForm" onsubmit="return submitDebt(this)" class="control is-horizontal">
+    <input type="date" name="debtDate" placeholder="借金日">
+    <input type="text" name="purpose" placeholder="用途">
+    <input type="number" name="amount" placeholder="借金額">
+    <span class="select">
+    <select name="from" id="from">
+        <option>From</option>
+    </select>
+    </span>
+    <span class="select">
+    <select name="to" id="to">
+        <option>To</option>
+    </select>
+    </span>
+    <input type="submit" value="借金追加" class="button is-primary">
+</form>
+<div id="debts"></div>
+<div id="repayments"></div>
+</body>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script>
+
+    loadFromServer();
+
+    function loadFromServer() {
+        return axios.get('/gateway').then(function (res) {
+            window.data = res.data;
+            render(window.data);
+        });
+    }
+
+    function render(data) {
+        console.log(data);
+        var me = data.me;
+        var debts = data.debts;
+        var members = data.members;
+
+        window.memberMap = {};
+        for (var i = 0; i < members.length; i++) {
+            var member = members[i];
+            memberMap[member.memberId] = member.familyName + ' ' + member.givenName;
+        }
+        window.debtMap = {};
+        for (var i = 0; i < debts.length; i++) {
+            var debt = debts[i];
+            debtMap[debt.debtId] = debt;
+        }
+
+        document.getElementById('me').innerText = me.displayName + ' がログイン中';
+        var debtsTable = '<table class="table is-bordered is-striped is-narrow" width="75%">';
+        debtsTable = debtsTable + '<tr><th>借金日</th><th>用途</th><th>借金額</th><th>残額</th><th>From</th><th>To</th></tr>';
+        for (var i = 0; i < debts.length; i++) {
+            var debt = debts[i];
+            var remain = debt.amount;
+            for (var j = 0; j < debt.repayments.length; j++) {
+                remain = remain - debt.repayments[j].amount;
+            }
+            debtsTable = debtsTable + '<tr>';
+            debtsTable = debtsTable + '<td>' + debt.debtDate + '</td>';
+            debtsTable = debtsTable + '<td>' + debt.purpose + '</td>';
+            debtsTable = debtsTable + '<td>' + debt.amount + '円</td>';
+            debtsTable = debtsTable + '<td><a onclick="showRepayments(\'' + debt.debtId + '\')">' + String.fromCodePoint(128269) + ' ' + remain + '</a>円</td>';
+            debtsTable = debtsTable + '<td>' + memberMap[debt.from] + '</td>';
+            debtsTable = debtsTable + '<td>' + memberMap[debt.to] + '</td>';
+            debtsTable = debtsTable + '</tr>';
+        }
+        debtsTable = debtsTable + '</table>';
+        document.getElementById('debts').innerHTML = debtsTable;
+
+        var memberList = '';
+        for (var i = 0; i < members.length; i++) {
+            var member = members[i];
+            memberList = memberList + '<option value="' + member.memberId + '">' + member.familyName + ' ' + member.givenName + '</option>';
+        }
+        document.getElementById('from').innerHTML = memberList;
+        document.getElementById('to').innerHTML = memberList;
+    }
+
+    function showRepayments(debtId) {
+        var repaymentsTable = '<table class="table is-bordered is-striped is-narrow" width="75%"><caption>' + window.debtMap[debtId].debtDate + '借金の返済履歴 <a onclick="closeRepayments()">' + String.fromCodePoint(10004, 65039) + '</a></caption>';
+        repaymentsTable = repaymentsTable + '<tr><th>返済日</th><th>返済額</th></tr>';
+        var repayments = window.debtMap[debtId].repayments;
+        for (var i = 0; i < repayments.length; i++) {
+            var repayment = repayments[i];
+            repaymentsTable = repaymentsTable + '<tr>';
+            repaymentsTable = repaymentsTable + '<td>' + repayment.repaymentDate + '</td>';
+            repaymentsTable = repaymentsTable + '<td>' + repayment.amount + '円</td>';
+            repaymentsTable = repaymentsTable + '</tr>';
+        }
+        repaymentsTable = repaymentsTable + '</table><br>';
+        repaymentsTable = repaymentsTable + '<form id="repaymentForm" name="repaymentForm" onsubmit="return submitRepayment(this, \'' + debtId + '\')" class="control is-horizontal"><input type="date" name="repaymentDate" placeholder="返済日"><input type="number" name="amount" placeholder="返済額"><input type="submit" value="返済" class="button is-primary"></form>';
+        document.getElementById('repayments').innerHTML = repaymentsTable;
+    }
+
+    function submitDebt(form) {
+        var debt = {
+            debtDate: form.debtDate.value,
+            purpose: form.purpose.value,
+            amount: form.amount.value,
+            from: form.from.value,
+            to: form.to.value
+        };
+        freeze(form);
+        axios.post('/debts', debt).then(function (res) {
+            window.data.debts.push(res.data);
+            render(window.data);
+            unfreeze(form);
+        });
+        form.reset();
+        return false;
+    }
+
+    function submitRepayment(form, debtId) {
+        var repayment = {
+            repaymentDate: form.repaymentDate.value,
+            amount: form.amount.value
+        };
+        freeze(form);
+        axios.post('/debts/' + debtId + '/repayments', repayment).then(function (res) {
+            loadFromServer().then(function (x) {
+                if (debtMap[debtId]) {
+                    showRepayments(debtId);
+                    unfreeze(form);
+                } else {
+                    closeRepayments();
+                }
+            });
+        });
+        form.reset();
+        return false;
+    }
+
+    function closeRepayments() {
+        document.getElementById('repayments').innerHTML = '';
+    }
+
+    function freeze(form) {
+        forEach(form.querySelectorAll('input,select'),
+            function (x) {
+                x.disabled = true;
+            });
+    }
+
+    function unfreeze(form) {
+        forEach(form.querySelectorAll('input,select'),
+            function (x) {
+                x.disabled = false;
+            });
+    }
+
+    function forEach(list, func) {
+        for (var key in list) {
+            if (list.hasOwnProperty(key)) {
+                func.call(null, list[key]);
+            }
+        }
+    }
+</script>
+</html>
