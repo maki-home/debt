@@ -2,10 +2,8 @@ package am.ik.debt.core;
 
 import java.util.UUID;
 
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -16,6 +14,7 @@ public class DebtRepaymentRestController {
 	private final DebtService debtService;
 
 	@PostMapping(path = "v1/debts/{debtId}/repayments")
+	@ResponseStatus(HttpStatus.CREATED)
 	Mono<Debt> postDebts(@PathVariable UUID debtId,
 			@RequestBody Mono<DebtRepayment> repayment) {
 		return repayment.then(r -> debtService.repay(debtId, r));
