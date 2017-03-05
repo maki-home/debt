@@ -1,0 +1,19 @@
+---
+applications:
+  - name: debt-dev
+    memory: 512m
+    instances: 1
+    path: target/debt-0.0.1-SNAPSHOT.jar
+    buildpack: java_buildpack_offline
+    services:
+    - debt-redis
+    domains:
+    - ik.am
+    - pezapp.io
+    env:
+      api.authorization-url: https://home-dev.ik.am
+      api.external-url: https://debt-dev.ik.am
+      api.debt-url: https://debt-dev.pezapp.io
+      security.oauth2.client.client-id: 00000000-0000-0000-0000-000000000000
+      security.oauth2.client.client-secret: 00000000-0000-0000-0000-000000000000
+      logging.level.reactor.ipc.netty.channel.ChannelOperationsHandler: DEBUG
