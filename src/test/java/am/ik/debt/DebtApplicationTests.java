@@ -1,8 +1,10 @@
 package am.ik.debt;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.web.reactive.function.BodyInserters.fromObject;
 
 import java.io.OutputStream;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Map;
 
@@ -17,11 +19,13 @@ import org.springframework.remoting.support.SimpleHttpServerFactoryBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import am.ik.debt.core.Debt;
 import lombok.extern.slf4j.Slf4j;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
 		"spring.cloud.config.enabled=false",
+		"api.authorization-url=http://localhost:" + DebtApplicationTests.UAA_PORT,
 		"security.oauth2.resource.jwt.key-uri=http://localhost:"
 				+ DebtApplicationTests.UAA_PORT + "/token_key" })
 @Slf4j
@@ -54,11 +58,44 @@ public class DebtApplicationTests {
 	}
 
 	@Test
-	public void contextLoads() {
+	public void getDebts() {
 		webClient.get().uri("http://localhost:{port}/v1/debts", port)
 				.header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken).exchange()
 				.expectStatus().isOk().expectBody(String.class).<String> returnResult()
 				.getResponseBody().doOnNext(x -> {
+					log.info("response = {}", x);
+				}).subscribe();
+	}
+
+	@Test
+	public void authorize() {
+		webClient.get().uri("http://localhost:{port}/index.html", port).exchange()
+				.expectStatus().isFound().expectHeader()
+				.valueMatches(HttpHeaders.LOCATION,
+						"http://localhost:" + UAA_PORT + "/oauth/authorize.+")
+				.expectHeader().valueMatches(HttpHeaders.SET_COOKIE, "SESSION=.+");
+	}
+
+	@Test
+	public void getDebtsFromMe() {
+		webClient.get().uri("http://localhost:{port}/v1/debts?from=me", port)
+				.header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken).exchange()
+				.expectStatus().isOk().expectBody(String.class).<String> returnResult()
+				.getResponseBody().doOnNext(x -> {
+					log.info("response = {}", x);
+				}).subscribe();
+	}
+
+	@Test
+	public void postDebts() {
+		Debt debt = Debt.builder().debtDate(LocalDate.of(2017, 1, 1))
+				.from("00000000-0000-0000-0000-000000000000")
+				.to("00000000-0000-0000-0000-000000000001").purpose("Test").build();
+		webClient.post().uri("http://localhost:{port}/v1/debts", port)
+				.header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+				.exchange(fromObject(debt)).expectStatus().isCreated()
+				.expectBody(String.class).<String> returnResult().getResponseBody()
+				.doOnNext(x -> {
 					log.info("response = {}", x);
 				}).subscribe();
 	}
