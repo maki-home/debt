@@ -2,6 +2,7 @@ package am.ik.debt.core;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -40,6 +41,7 @@ public class DebtService {
 		if (debt.getDebtDate() == null) {
 			debt.setDebtDate(LocalDate.now());
 		}
+		debt.setRepayments(new ArrayList<>());
 		return this.debtRepository.save(debt).then(Mono.just(debt));
 	}
 
