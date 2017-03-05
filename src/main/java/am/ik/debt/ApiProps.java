@@ -10,5 +10,6 @@ import lombok.Data;
 @Component
 public class ApiProps {
 	private String authorizationUrl;
+	private String debtUrl;
 	private String externalUrl;
 }
