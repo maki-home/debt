@@ -4,6 +4,7 @@ applications:
     memory: 512m
     instances: 1
     path: target/debt-0.0.1-SNAPSHOT.jar
+    buildpack: java_buildpack_offline
     services:
     - debt-redis
     - logstash
