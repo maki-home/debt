@@ -1,11 +1,11 @@
-package am.ik.debt.core;
+package am.ik.home.debt;
 
 import java.util.UUID;
 
+import am.ik.home.security.UserPrincipal;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import am.ik.debt.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

@@ -1,4 +1,4 @@
-package am.ik.debt.core;
+package am.ik.home.debt;
 
 import static java.util.Collections.emptyMap;
 import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON;

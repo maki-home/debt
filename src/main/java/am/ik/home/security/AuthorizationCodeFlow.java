@@ -1,4 +1,4 @@
-package am.ik.debt.security;
+package am.ik.home.security;
 
 import java.net.URI;
 import java.time.Instant;
@@ -16,7 +16,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import am.ik.debt.ApiProps;
+import am.ik.home.ApiProps;
 import reactor.core.publisher.Mono;
 
 @Component

@@ -1,4 +1,4 @@
-package am.ik.debt.ui;
+package am.ik.home.gateway;
 
 import static org.springframework.web.reactive.function.BodyInserters.fromPublisher;
 import static org.springframework.web.reactive.function.client.ClientRequest.from;
@@ -7,6 +7,8 @@ import static org.springframework.web.reactive.function.client.ExchangeFilterFun
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import am.ik.home.ApiProps;
+import am.ik.home.security.UserPrincipal;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
@@ -16,8 +18,6 @@ import org.springframework.web.server.ServerWebExchange;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import am.ik.debt.ApiProps;
-import am.ik.debt.security.UserPrincipal;
 import reactor.core.publisher.Mono;
 
 @RestController

@@ -1,4 +1,4 @@
-package am.ik.debt;
+package am.ik.home;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

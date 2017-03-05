@@ -1,4 +1,4 @@
-package am.ik.debt;
+package am.ik.home;
 
 import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.basicAuthentication;
 
@@ -19,7 +19,7 @@ public class AppConfig {
 	@Bean
 	WebClient webClient() {
 		return WebClient.builder()
-				.defaultHeader(HttpHeaders.USER_AGENT, "am.ik.debt.DebtApplication")
+				.defaultHeader(HttpHeaders.USER_AGENT, "am.ik.home.DebtApplication")
 				.build();
 	}
 

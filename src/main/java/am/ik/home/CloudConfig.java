@@ -1,4 +1,4 @@
-package am.ik.debt;
+package am.ik.home;
 
 import org.springframework.cloud.config.java.AbstractCloudConfig;
 import org.springframework.context.annotation.Bean;

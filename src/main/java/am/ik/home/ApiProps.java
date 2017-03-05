@@ -1,4 +1,4 @@
-package am.ik.debt;
+package am.ik.home;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;

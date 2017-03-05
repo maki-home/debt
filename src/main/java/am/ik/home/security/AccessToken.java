@@ -1,4 +1,4 @@
-package am.ik.debt.security;
+package am.ik.home.security;
 
 import java.io.Serializable;
 import java.time.Instant;

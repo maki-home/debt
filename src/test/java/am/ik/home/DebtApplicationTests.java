@@ -1,4 +1,4 @@
-package am.ik.debt;
+package am.ik.home;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.web.reactive.function.BodyInserters.fromObject;
@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Map;
 
+import am.ik.home.debt.Debt;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,7 +20,6 @@ import org.springframework.remoting.support.SimpleHttpServerFactoryBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import am.ik.debt.core.Debt;
 import lombok.extern.slf4j.Slf4j;
 
 @RunWith(SpringRunner.class)

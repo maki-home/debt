@@ -1,4 +1,4 @@
-package am.ik.debt.core;
+package am.ik.home.debt;
 
 import java.util.UUID;
 
