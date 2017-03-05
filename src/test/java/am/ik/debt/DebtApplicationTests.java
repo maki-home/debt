@@ -55,7 +55,7 @@ public class DebtApplicationTests {
 
 	@Test
 	public void contextLoads() {
-		webClient.get().uri("http://localhost:" + port)
+		webClient.get().uri("http://localhost:{port}/v1/debts", port)
 				.header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken).exchange()
 				.expectStatus().isOk().expectBody(String.class).<String> returnResult()
 				.getResponseBody().doOnNext(x -> {
@@ -65,8 +65,9 @@ public class DebtApplicationTests {
 
 	@Test
 	public void unauthorized() {
-		Map<String, Object> response = webClient.get().uri("http://localhost:" + port)
-				.exchange().expectStatus().isUnauthorized()
+		Map<String, Object> response = webClient.get()
+				.uri("http://localhost:{port}/v1/debts", port).exchange().expectStatus()
+				.isUnauthorized()
 				.expectBody(ResolvableType.forClassWithGenerics(Map.class, String.class,
 						Object.class))
 				.value().<Map<String, Object>> returnResult().getResponseBody();
@@ -77,7 +78,8 @@ public class DebtApplicationTests {
 
 	@Test
 	public void invalidAuthorization() {
-		Map<String, Object> response = webClient.get().uri("http://localhost:" + port)
+		Map<String, Object> response = webClient.get()
+				.uri("http://localhost:{port}/v1/debts", port)
 				.header(HttpHeaders.AUTHORIZATION, "Basic foo").exchange().expectStatus()
 				.isUnauthorized()
 				.expectBody(ResolvableType.forClassWithGenerics(Map.class, String.class,
@@ -91,7 +93,8 @@ public class DebtApplicationTests {
 	@Test
 	public void invalidToken() {
 		String token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiIwMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDAiLCJpc3MiOiJtYWtpLXVhYSIsImdpdmVuX25hbWUiOiJUb3NoaWFraSIsImRpc3BsYXlfbmFtZSI6Ik1ha2kgVG9zaGlha2kiLCJhdXRob3JpdGllcyI6WyJST0xFX0FETUlOIiwiUk9MRV9VU0VSIiwiUk9MRV9BQ1RVQVRPUiJdLCJjbGllbnRfaWQiOiIwMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDAiLCJhdWQiOlsib2F1dGgyLXJlc291cmNlIl0sInVzZXJfaWQiOiIwMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDAiLCJzY29wZSI6WyJtZW1iZXIucmVhZCIsImluY29tZS53cml0ZSIsImFjY291bnQud3JpdGUiLCJvcGVuaWQiLCJtZW1iZXIud3JpdGUiLCJpbmNvbWUucmVhZCIsIm91dGNvbWUud3JpdGUiLCJvdXRjb21lLnJlYWQiLCJhY2NvdW50LnJlYWQiXSwiZXhwIjoxNDg4NDgxMzIwLCJmYW1pbHlfbmFtZSI6Ik1ha2kiLCJpYXQiOjE0ODg0Nzk1MjAsImp0aSI6ImMzNDRlYjg4LTYzZjMtNDUxMS05ZjY2LWYyOTlhMTNkMmU5MSIsImVtYWlsIjoibWFraUBleGFtcGxlLmNvbSJ9.hB1FcTCjMq0WTZ85_RyfFJK2V0eYypWzuZepdUVi7H3ba-HNSvXpmi916sFlnd4Ojgt3AfqIk-7TZL2x1ED5ufQcYJw053R12fkpi49NvUF3mVaxYMbq3dCoEajugpUS6ajeh4Hdsj1KG7xRciFnVykPsU2nS81_5Qn-CgTb-v0b8bzeLQqMlggGJ_d1hFmtt3fyM6om-s7h8rGatRbkmqgz9dcmepJGI7PIDZP4LKKFsmm66vFdyxFJzPFR3IqsqhDaATpZtvZz05675qUPUxQQg3x9kwrSdTWlDNiXaN1dMQdtFTTIStBdeNm4BBOHWb0FL974Vr8dcqaqo9Xy3g";
-		Map<String, Object> response = webClient.get().uri("http://localhost:" + port)
+		Map<String, Object> response = webClient.get()
+				.uri("http://localhost:{port}/v1/debts", port)
 				.header(HttpHeaders.AUTHORIZATION, "Bearer " + token).exchange()
 				.expectStatus().isUnauthorized()
 				.expectBody(ResolvableType.forClassWithGenerics(Map.class, String.class,
@@ -104,7 +107,8 @@ public class DebtApplicationTests {
 	@Test
 	public void invalidExpired() {
 		String token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMDAwMDAwMDAtMDAwMC0wMDAwLTAwMDAtMDAwMDAwMDAwMDAwIiwidXNlcl9uYW1lIjoibWFraUBleGFtcGxlLmNvbSIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdLCJleHAiOjE0ODg0NTAxODYsImRpc3BsYXlfbmFtZSI6Ik1ha2kgVG9zaGlha2kiLCJqdGkiOiIwZWU2Y2M4Zi1jYTIwLTRjNmItOTRkYS1hMzM0YzJlMjU2YTYiLCJlbWFpbCI6Im1ha2lAZXhhbXBsZS5jb20iLCJjbGllbnRfaWQiOiJmb28ifQ.JBuD-TBJMqZUNTqZYfOQu17OcWoHeIzhXFZitVuNgsROirnfX8l2wTSPkff2wHq379p2kwv1o6SMH20ZE4JLEf2aaVny_iWcV9Z7XjOiW0HribeLzg-uDqQUzctHQK9JXtCKuUMAR6lwBx5-B00qH_0talTo2-q6rbcAAT0SYqelUDhfeDqPqW5vx_oquQDBr9ZWsDzw5HZy890cF0IpoGod480vMjLZ1KcIdWP-G7wPjVrmsoIVvGy45nRwMws0-kKfymOn0WOfEyesfVjGq1Q47Z9ZXIZRrRs_IqU5_pYRwmXM-JoM6ya5sSxiBzkKbkjOcaj3f7eCXVRocbbSRA";
-		Map<String, Object> response = webClient.get().uri("http://localhost:" + port)
+		Map<String, Object> response = webClient.get()
+				.uri("http://localhost:{port}/v1/debts", port)
 				.header(HttpHeaders.AUTHORIZATION, "Bearer " + token).exchange()
 				.expectStatus().isUnauthorized()
 				.expectBody(ResolvableType.forClassWithGenerics(Map.class, String.class,
