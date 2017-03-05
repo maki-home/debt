@@ -1,0 +1,19 @@
+---
+applications:
+  - name: debt
+    memory: 512m
+    instances: 1
+    path: target/debt-0.0.1-SNAPSHOT.jar
+    services:
+    - debt-redis
+    - logstash
+    domains:
+    - ik.am
+    - pezapp.io
+    env:
+      api.authorization-url: https://home.ik.am
+      api.external-url: https://debt.ik.am
+      api.debt-url: https://debt.pezapp.io
+      security.oauth2.client.client-id: 65611f12-e0cb-46e3-a330-9f434df45e36
+      security.oauth2.client.client-secret: 70c0da0a-18f7-4fe9-991e-3cc3ad8c7717
+      logging.level.reactor.ipc.netty.channel.ChannelOperationsHandler: INFO
