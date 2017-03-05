@@ -88,7 +88,7 @@ public class DebtApplicationTests {
 
 	@Test
 	public void postDebts() {
-		Debt debt = Debt.builder().debtDate(LocalDate.of(2017, 1, 1))
+		Debt debt = Debt.builder().debtDate(LocalDate.of(2017, 1, 1)).amount(100000L)
 				.from("00000000-0000-0000-0000-000000000000")
 				.to("00000000-0000-0000-0000-000000000001").purpose("Test").build();
 		webClient.post().uri("http://localhost:{port}/v1/debts", port)
