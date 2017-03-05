@@ -69,7 +69,9 @@ public class JwtOAuth2WebFilter implements WebFilter {
 				&& authorization.substring(0, BEARER_STRLEN)
 						.equalsIgnoreCase("bearer ")) {
 			String token = authorization.substring(BEARER_STRLEN);
-			return chain.filter(exchange.mutate().principal(user(token)).build())
+			return user(token)
+					.then(user -> chain
+							.filter(exchange.mutate().principal(Mono.just(user)).build()))
 					.otherwise(TokenExpiredException.class, t -> expired(exchange, token))
 					.otherwise(InvalidSignatureException.class,
 							t -> invalidToken(exchange, token))
