@@ -177,8 +177,12 @@ jobs:
           - merge-develop-to-master
         - get: utils
         - get: m2
+        - get: redis
+          params:
+            save: true
       - task: unit
-        file: utils/tasks/unit-test.yml
+        privileged: true
+        file: repo/ci/tasks/unit-test-with-redis.yml
         on_failure:
           put: slack-alert
           params:
