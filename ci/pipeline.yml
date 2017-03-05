@@ -49,11 +49,11 @@ resources:
       organization: {{cf-org}}
       space: home-dev
       skip_cert_check: true
-#  - name: redis
-#    type: docker-image
-#    source:
-#      repository: redis
-#      tag: 3.2.1-alpine
+  - name: redis
+    type: docker-image
+    source:
+      repository: redis
+      tag: 3.2.1-alpine
   - name: m2
     type: docker-image
     source:
@@ -72,8 +72,12 @@ jobs:
           trigger: true
         - get: utils
         - get: m2
+        - get: redis
+          params:
+            save: true
       - task: unit
-        file: utils/tasks/unit-test.yml
+        privileged: true
+        file: repo/ci/tasks/unit-test-with-redis.yml
         on_failure:
           put: slack-alert
           params:
