@@ -3,6 +3,7 @@ package am.ik.home.debt;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import am.ik.home.security.UserPrincipal;
@@ -43,7 +44,7 @@ public class DebtRestController {
 
 	@PostMapping(path = "v1/debts")
 	@ResponseStatus(HttpStatus.CREATED)
-	Mono<Debt> postDebts(@RequestBody Mono<Debt> debt) {
+	Mono<Debt> postDebts(@Validated @RequestBody Mono<Debt> debt) {
 		return debt.then(debtService::save);
 	}
 

@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;
 
+import javax.validation.constraints.NotNull;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -18,6 +20,7 @@ import lombok.NoArgsConstructor;
 public class DebtRepayment implements Serializable {
 	@Getter(onMethod = @__(@JsonIgnore))
 	private Debt debt;
+	@NotNull
 	private Long amount;
 	@JsonFormat(pattern = "uuuu-MM-dd")
 	private LocalDate repaymentDate;

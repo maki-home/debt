@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Map;
+import java.util.UUID;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -21,7 +22,10 @@ import org.springframework.remoting.support.SimpleHttpServerFactoryBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import am.ik.home.debt.Debt;
+import am.ik.home.debt.DebtRepayment;
 import lombok.extern.slf4j.Slf4j;
 
 @RunWith(SpringRunner.class)
@@ -101,6 +105,39 @@ public class DebtApplicationTests {
 				.doOnNext(x -> {
 					log.info("response = {}", x);
 				}).subscribe();
+	}
+
+	@Test
+	public void postInvalidDebts() {
+		postInvalidDebts(Debt.builder().build(), 5);
+		postInvalidDebts(Debt.builder().amount(10L).build(), 4);
+		postInvalidDebts(Debt.builder().amount(10L).from("foo").build(), 3);
+		postInvalidDebts(Debt.builder().amount(10L).from("foo").to("bar").build(), 2);
+		postInvalidDebts(
+				Debt.builder().amount(10L).from("foo").to("bar").purpose("x").build(), 1);
+	}
+
+	void postInvalidDebts(Debt debt, int errorCount) {
+		JsonNode error = webClient.post().uri("http://localhost:{port}/v1/debts", port)
+				.header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+				.exchange(fromObject(debt)).expectStatus().isBadRequest()
+				.expectBody(JsonNode.class).value().<JsonNode> returnResult()
+				.getResponseBody();
+		assertThat(error.get("errors").size()).isEqualTo(errorCount);
+	}
+
+	@Test
+	public void postInvalidDebtRepayments() {
+		UUID debtId = UUID.randomUUID();
+		DebtRepayment repayment = DebtRepayment.builder()
+				.debt(Debt.builder().debtId(debtId).build()).build();
+		JsonNode error = webClient.post()
+				.uri("http://localhost:{port}/v1/debts/{debtId}/repayments", port, debtId)
+				.header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+				.exchange(fromObject(repayment)).expectStatus().isBadRequest()
+				.expectBody(JsonNode.class).value().<JsonNode> returnResult()
+				.getResponseBody();
+		assertThat(error.get("errors").size()).isEqualTo(1);
 	}
 
 	@Test

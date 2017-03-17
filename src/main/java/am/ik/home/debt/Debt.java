@@ -7,6 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.NotEmpty;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.Builder;
@@ -20,12 +24,17 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Debt implements Serializable {
 	private UUID debtId;
+	@NotEmpty
 	private String purpose;
+	@NotNull
 	private Long amount;
+	@NotEmpty
 	private String from;
+	@NotEmpty
 	private String to;
 	private List<DebtRepayment> repayments = new ArrayList<>();
 	@JsonFormat(pattern = "uuuu-MM-dd")
+	@NotNull
 	private LocalDate debtDate;
 	private Instant createdAt;
 
