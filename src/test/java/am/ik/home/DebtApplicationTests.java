@@ -8,10 +8,11 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Map;
 
-import am.ik.home.debt.Debt;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.core.ResolvableType;
@@ -20,6 +21,7 @@ import org.springframework.remoting.support.SimpleHttpServerFactoryBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import am.ik.home.debt.Debt;
 import lombok.extern.slf4j.Slf4j;
 
 @RunWith(SpringRunner.class)
@@ -28,13 +30,15 @@ import lombok.extern.slf4j.Slf4j;
 		"api.authorization-url=http://localhost:" + DebtApplicationTests.UAA_PORT,
 		"security.oauth2.resource.jwt.key-uri=http://localhost:"
 				+ DebtApplicationTests.UAA_PORT + "/token_key" })
+@AutoConfigureWebTestClient
 @Slf4j
 public class DebtApplicationTests {
 	public final static int UAA_PORT = 39876;
 
 	static SimpleHttpServerFactoryBean factoryBean;
 	static String accessToken;
-	static WebTestClient webClient;
+	@Autowired
+	WebTestClient webClient;
 	@LocalServerPort
 	int port;
 
@@ -54,7 +58,6 @@ public class DebtApplicationTests {
 			}
 		}));
 		factoryBean.afterPropertiesSet();
-		webClient = WebTestClient.bindToServer().build();
 	}
 
 	@Test
