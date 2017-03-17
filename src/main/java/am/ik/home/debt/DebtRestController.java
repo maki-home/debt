@@ -2,10 +2,10 @@ package am.ik.home.debt;
 
 import java.util.UUID;
 
-import am.ik.home.security.UserPrincipal;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import am.ik.home.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -44,7 +44,7 @@ public class DebtRestController {
 	@PostMapping(path = "v1/debts")
 	@ResponseStatus(HttpStatus.CREATED)
 	Mono<Debt> postDebts(@RequestBody Mono<Debt> debt) {
-		return debt.then(d -> debtService.save(d));
+		return debt.then(debtService::save);
 	}
 
 	@PostMapping(path = "v1/debts", params = "from=me")
