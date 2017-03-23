@@ -17,7 +17,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 @Slf4j
 public class DebtService {
-	private final DebtRedisRepository debtRepository;
+	private final DebtRepository debtRepository;
 
 	public Mono<Debt> findOne(UUID debtId) {
 		return this.debtRepository.findOne(debtId);

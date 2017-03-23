@@ -1,10 +1,13 @@
 package am.ik.home;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import org.springframework.remoting.support.SimpleHttpServerFactoryBean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
@@ -94,5 +97,25 @@ public class TestTokenGenerator {
 
 	public String getTokenKey() {
 		return tokenKey;
+	}
+
+	public void initTokenKeyServer(int port) {
+		SimpleHttpServerFactoryBean factoryBean = new SimpleHttpServerFactoryBean();
+		factoryBean.setPort(port);
+		factoryBean.setContexts(Collections.singletonMap("/token_key", (exec) -> {
+			String response = this.getTokenKey();
+			exec.getResponseHeaders().add("Content-Type",
+					"application/json;charset=UTF-8");
+			exec.sendResponseHeaders(200, response.length());
+			try (OutputStream stream = exec.getResponseBody()) {
+				stream.write(response.getBytes());
+			}
+		}));
+		try {
+			factoryBean.afterPropertiesSet();
+		}
+		catch (IOException e) {
+			throw new UncheckedIOException(e);
+		}
 	}
 }

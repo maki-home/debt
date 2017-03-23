@@ -1,0 +1,71 @@
+= 借金API Guide
+Toshiaki Maki(@making);
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 4
+:sectlinks:
+
+
+[[resources]]
+= API一覧
+
+
+[[resources-debts]]
+== Debts(借金)
+
+
+=== 借金一覧取得
+[[resources-get-debts]]
+==== レスポンス仕様
+
+include::{snippets}/api/get-debts/response-fields.adoc[]
+
+==== リクエスト例
+
+include::{snippets}/api/get-debts/http-request.adoc[]
+
+===== curl
+
+include::{snippets}/api/get-debts/curl-request.adoc[]
+
+
+===== httpie
+
+include::{snippets}/api/get-debts/httpie-request.adoc[]
+
+
+==== レスポンス例
+
+include::{snippets}/api/get-debts/http-response.adoc[]
+
+
+=== 借金登録
+[[resources-post-debts]]
+
+==== リクエスト仕様
+
+include::{snippets}/api/post-debts/request-fields.adoc[]
+
+==== レスポンス仕様
+
+include::{snippets}/api/post-debts/response-fields.adoc[]
+
+==== リクエスト例
+
+include::{snippets}/api/post-debts/http-request.adoc[]
+
+===== curl
+
+include::{snippets}/api/post-debts/curl-request.adoc[]
+
+
+===== httpie
+
+include::{snippets}/api/post-debts/httpie-request.adoc[]
+
+
+==== レスポンス例
+
+include::{snippets}/api/post-debts/http-response.adoc[]

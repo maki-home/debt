@@ -25,7 +25,7 @@ import reactor.core.publisher.Mono;
 
 @Repository
 @Slf4j
-public class DebtRedisRepository {
+public class DebtRedisRepository implements DebtRepository {
 	private final ReactiveRedisConnection connection;
 	private final Jackson2JsonDecoder jsonDecoder;
 	private final Jackson2JsonEncoder jsonEncoder;
@@ -41,11 +41,13 @@ public class DebtRedisRepository {
 		this.jsonEncoder = new Jackson2JsonEncoder(objectMapper);
 	}
 
+	@Override
 	public Mono<Boolean> contains(DebtClear clear) {
 		ByteBuffer clearKey = clearKey(clear);
 		return this.connection.keyCommands().exists(clearKey);
 	}
 
+	@Override
 	public Mono<Long> save(Debt debt) {
 		ByteBuffer debtKey = debtKey(debt);
 		return this.connection.keyCommands().exists(debtKey)
@@ -54,6 +56,7 @@ public class DebtRedisRepository {
 								v -> this.connection.listCommands().rPush(debtKey, v)));
 	}
 
+	@Override
 	public Mono<Long> save(DebtClear clear) {
 		ByteBuffer clearKey = clearKey(clear);
 		return this.connection.keyCommands().exists(clearKey).then(x -> x ? Mono.empty()
@@ -61,11 +64,13 @@ public class DebtRedisRepository {
 						.then(v -> this.connection.listCommands().rPush(clearKey, v)));
 	}
 
+	@Override
 	public Mono<Long> delete(UUID debtId) {
 		ByteBuffer debtKey = debtKey(debtId);
 		return this.connection.keyCommands().del(debtKey);
 	}
 
+	@Override
 	public Mono<Debt> findOne(UUID debtId) {
 		return this.getDebt(debtKey(debtId));
 	}
@@ -75,6 +80,7 @@ public class DebtRedisRepository {
 				.then(v -> this.decode(Flux.fromIterable(v), Debt.class));
 	}
 
+	@Override
 	public Flux<Debt> findAll() {
 		return this.connection.keyCommands().keys(wrap(DEBT_PREFIX + "*"))
 				.flatMap(Flux::fromIterable).flatMap(this::getDebt);

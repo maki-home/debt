@@ -3,9 +3,7 @@ package am.ik.home;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.web.reactive.function.BodyInserters.fromObject;
 
-import java.io.OutputStream;
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
 
@@ -50,18 +48,7 @@ public class DebtApplicationTests {
 	public static void init() throws Exception {
 		TestTokenGenerator tokenGenerator = new TestTokenGenerator();
 		accessToken = tokenGenerator.getAccessToken();
-		factoryBean = new SimpleHttpServerFactoryBean();
-		factoryBean.setPort(UAA_PORT);
-		factoryBean.setContexts(Collections.singletonMap("/token_key", (exec) -> {
-			String response = tokenGenerator.getTokenKey();
-			exec.getResponseHeaders().add("Content-Type",
-					"application/json;charset=UTF-8");
-			exec.sendResponseHeaders(200, response.length());
-			try (OutputStream stream = exec.getResponseBody()) {
-				stream.write(response.getBytes());
-			}
-		}));
-		factoryBean.afterPropertiesSet();
+		tokenGenerator.initTokenKeyServer(UAA_PORT);
 	}
 
 	@Test
