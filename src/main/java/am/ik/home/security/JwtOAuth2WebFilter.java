@@ -58,8 +58,17 @@ public class JwtOAuth2WebFilter implements WebFilter {
 		return path.startsWith("/login");
 	}
 
+	boolean isDocsRequest(ServerWebExchange exchange) {
+		ServerHttpRequest request = exchange.getRequest();
+		String path = request.getURI().getPath();
+		return path.startsWith("/docs");
+	}
+
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+		if (isDocsRequest(exchange)) {
+			return chain.filter(exchange);
+		}
 		if (!isAuthorizedApiRequest(exchange)) {
 			return authorize(exchange, chain);
 		}
