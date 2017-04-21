@@ -37,9 +37,14 @@ public class DebtRedisRepository implements DebtRepository {
 	public DebtRedisRepository(ReactiveRedisConnectionFactory connectionFactory,
 			ObjectMapper objectMapper) {
 		log.info("set up DebtRedisRepository with {}", connectionFactory);
-		this.connection = connectionFactory.getReactiveConnection();
-		this.jsonDecoder = new Jackson2JsonDecoder(objectMapper);
-		this.jsonEncoder = new Jackson2JsonEncoder(objectMapper);
+		try {
+			this.connection = connectionFactory.getReactiveConnection();
+			this.jsonDecoder = new Jackson2JsonDecoder(objectMapper);
+			this.jsonEncoder = new Jackson2JsonEncoder(objectMapper);
+		} catch (RuntimeException e) {
+			log.error("failed fot create DebtRedisRepository", e);
+			throw e;
+		}
 	}
 
 	@Override
