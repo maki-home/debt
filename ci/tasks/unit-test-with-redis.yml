@@ -16,4 +16,4 @@ run:
   - |
     repo/ci/tasks/unit-test-with-redis.sh
 params:
-  _JAVA_OPTIONS: -Duser.timezone=Asia/Tokyo -Duser.language=ja -Duser.country=JP -Djava.security.egd=file:/dev/./urandom -Dbiz.paluch.redis.lettuce.epoll=fale
+  _JAVA_OPTIONS: -Duser.timezone=Asia/Tokyo -Duser.language=ja -Duser.country=JP -Djava.security.egd=file:/dev/./urandom -Dio.lettuce.core.epoll=fale
