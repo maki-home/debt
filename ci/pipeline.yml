@@ -93,12 +93,13 @@ jobs:
         - get: utils
         - get: m2
       - task: deploy
-        file: utils/tasks/deploy-to-nexus.yml
+        file: utils/tasks/deploy-to-nexus-with-unit-test.yml
         on_failure:
           put: slack-alert
           params:
             <<: *SLACK_FAILURE
         params:
+          _JAVA_OPTIONS: -Dtest=am.ik.home.debt.*Test
           NEXUS_USERNAME: {{nexus-username}}
           NEXUS_PASSWORD: {{nexus-password}}
   - name: deploy-to-cf-dev
@@ -217,7 +218,7 @@ jobs:
         - get: utils
         - get: m2
       - task: deploy
-        file: utils/tasks/deploy-to-nexus.yml
+        file: utils/tasks/deploy-to-nexus-with-unit-test.yml
         on_failure:
           put: slack-alert
           params:
@@ -225,6 +226,7 @@ jobs:
         params:
           NEXUS_USERNAME: {{nexus-username}}
           NEXUS_PASSWORD: {{nexus-password}}
+          _JAVA_OPTIONS: -Dtest=am.ik.home.debt.*Test
   - name: deploy-to-cf-prod
     plan:
       - aggregate:
