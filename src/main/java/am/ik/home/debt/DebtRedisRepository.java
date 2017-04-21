@@ -12,7 +12,7 @@ import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.data.redis.connection.ReactiveRedisConnection;
-import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import org.springframework.http.codec.json.Jackson2JsonDecoder;
 import org.springframework.http.codec.json.Jackson2JsonEncoder;
 import org.springframework.stereotype.Repository;
@@ -34,8 +34,9 @@ public class DebtRedisRepository implements DebtRepository {
 	private static final String DEBT_PREFIX = "debt:";
 	private static final String DEBT_CLEAR = "debt_clear:";
 
-	public DebtRedisRepository(LettuceConnectionFactory connectionFactory,
+	public DebtRedisRepository(ReactiveRedisConnectionFactory connectionFactory,
 			ObjectMapper objectMapper) {
+		log.info("set up DebtRedisRepository with {}", connectionFactory);
 		this.connection = connectionFactory.getReactiveConnection();
 		this.jsonDecoder = new Jackson2JsonDecoder(objectMapper);
 		this.jsonEncoder = new Jackson2JsonEncoder(objectMapper);
