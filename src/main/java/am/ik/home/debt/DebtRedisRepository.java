@@ -12,7 +12,7 @@ import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.data.redis.connection.ReactiveRedisConnection;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.http.codec.json.Jackson2JsonDecoder;
 import org.springframework.http.codec.json.Jackson2JsonEncoder;
 import org.springframework.stereotype.Repository;
@@ -34,7 +34,7 @@ public class DebtRedisRepository implements DebtRepository {
 	private static final String DEBT_PREFIX = "debt:";
 	private static final String DEBT_CLEAR = "debt_clear:";
 
-	public DebtRedisRepository(RedisConnectionFactory connectionFactory,
+	public DebtRedisRepository(LettuceConnectionFactory connectionFactory,
 			ObjectMapper objectMapper) {
 		this.connection = connectionFactory.getReactiveConnection();
 		this.jsonDecoder = new Jackson2JsonDecoder(objectMapper);
@@ -51,17 +51,18 @@ public class DebtRedisRepository implements DebtRepository {
 	public Mono<Long> save(Debt debt) {
 		ByteBuffer debtKey = debtKey(debt);
 		return this.connection.keyCommands().exists(debtKey)
-				.then(x -> x ? Mono.just(1L)
-						: this.encode(Mono.just(debt), Debt.class).collectList().then(
+				.flatMap(x -> x ? Mono.just(1L)
+						: this.encode(Mono.just(debt), Debt.class).collectList().flatMap(
 								v -> this.connection.listCommands().rPush(debtKey, v)));
 	}
 
 	@Override
 	public Mono<Long> save(DebtClear clear) {
 		ByteBuffer clearKey = clearKey(clear);
-		return this.connection.keyCommands().exists(clearKey).then(x -> x ? Mono.empty()
+		return this.connection.keyCommands().exists(clearKey).flatMap(x -> x
+				? Mono.empty()
 				: this.encode(Mono.just(clear), DebtClear.class).collectList()
-						.then(v -> this.connection.listCommands().rPush(clearKey, v)));
+						.flatMap(v -> this.connection.listCommands().rPush(clearKey, v)));
 	}
 
 	@Override
@@ -76,14 +77,14 @@ public class DebtRedisRepository implements DebtRepository {
 	}
 
 	private Mono<Debt> getDebt(ByteBuffer key) {
-		return this.connection.listCommands().lRange(key, 0, -1)
-				.then(v -> this.decode(Flux.fromIterable(v), Debt.class));
+		Flux<ByteBuffer> range = this.connection.listCommands().lRange(key, 0, -1);
+		return this.decode(range, Debt.class);
 	}
 
 	@Override
 	public Flux<Debt> findAll() {
 		return this.connection.keyCommands().keys(wrap(DEBT_PREFIX + "*"))
-				.flatMap(Flux::fromIterable).flatMap(this::getDebt);
+				.flatMapMany(Flux::fromIterable).flatMap(this::getDebt);
 	}
 
 	private <T> Flux<ByteBuffer> encode(Mono<T> obj, Class<T> clazz) {

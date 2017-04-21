@@ -45,13 +45,13 @@ public class DebtRestController {
 	@PostMapping(path = "v1/debts")
 	@ResponseStatus(HttpStatus.CREATED)
 	Mono<Debt> postDebts(@Validated @RequestBody Mono<Debt> debt) {
-		return debt.then(debtService::save);
+		return debt.flatMap(debtService::save);
 	}
 
 	@PostMapping(path = "v1/debts", params = "from=me")
 	@ResponseStatus(HttpStatus.CREATED)
 	Mono<Debt> postDebtsFromMe(@RequestBody Mono<Debt> debt, UserPrincipal principal) {
-		return debt.then(d -> {
+		return debt.flatMap(d -> {
 			d.setFrom(principal.getUaaUser().getUserId());
 			return debtService.save(d);
 		});
@@ -60,7 +60,7 @@ public class DebtRestController {
 	@PostMapping(path = "v1/debts", params = "to=me")
 	@ResponseStatus(HttpStatus.CREATED)
 	Mono<Debt> postDebtsToMe(@RequestBody Mono<Debt> debt, UserPrincipal principal) {
-		return debt.then(d -> {
+		return debt.flatMap(d -> {
 			d.setTo(principal.getUaaUser().getUserId());
 			return debtService.save(d);
 		});

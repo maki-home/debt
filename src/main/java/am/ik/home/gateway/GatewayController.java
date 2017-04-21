@@ -7,8 +7,6 @@ import static org.springframework.web.reactive.function.client.ExchangeFilterFun
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import am.ik.home.ApiProps;
-import am.ik.home.security.UserPrincipal;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
@@ -18,6 +16,8 @@ import org.springframework.web.server.ServerWebExchange;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import am.ik.home.ApiProps;
+import am.ik.home.security.UserPrincipal;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -46,11 +46,11 @@ public class GatewayController {
 		Mono<JsonNode> debts = this.webClient
 				.filter(gatewayFilter(principal, exchange.getRequest().getHeaders()))
 				.get().uri(props.getDebtUrl() + "/v1/debts").exchange()
-				.then(x -> x.bodyToMono(JsonNode.class));
+				.flatMap(x -> x.bodyToMono(JsonNode.class));
 		Mono<JsonNode> members = this.webClient
 				.filter(gatewayFilter(principal, exchange.getRequest().getHeaders()))
 				.get().uri(props.getAuthorizationUrl() + "/v1/members").exchange()
-				.then(x -> x.bodyToMono(JsonNode.class));
+				.flatMap(x -> x.bodyToMono(JsonNode.class));
 		return Mono.when(debts, members).map(t -> {
 			Map<String, Object> response = new LinkedHashMap<>();
 			response.put("me", principal.getUaaUser());
@@ -66,8 +66,8 @@ public class GatewayController {
 		return this.webClient
 				.filter(gatewayFilter(principal, exchange.getRequest().getHeaders()))
 				.post().uri(props.getDebtUrl() + "/v1/debts")
-				.exchange(fromPublisher(body, JsonNode.class))
-				.then(x -> x.bodyToMono(JsonNode.class));
+				.body(fromPublisher(body, JsonNode.class)).exchange()
+				.flatMap(x -> x.bodyToMono(JsonNode.class));
 	}
 
 	@PostMapping("debts/{debtId}/repayments")
@@ -77,7 +77,7 @@ public class GatewayController {
 		return this.webClient
 				.filter(gatewayFilter(principal, exchange.getRequest().getHeaders()))
 				.post().uri(props.getDebtUrl() + "/v1/debts/{debtId}/repayments", debtId)
-				.exchange(fromPublisher(body, JsonNode.class))
-				.then(x -> x.bodyToMono(JsonNode.class));
+				.body(fromPublisher(body, JsonNode.class)).exchange()
+				.flatMap(x -> x.bodyToMono(JsonNode.class));
 	}
 }

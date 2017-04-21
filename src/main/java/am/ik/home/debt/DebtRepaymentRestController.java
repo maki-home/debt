@@ -18,6 +18,6 @@ public class DebtRepaymentRestController {
 	@ResponseStatus(HttpStatus.CREATED)
 	Mono<Debt> postDebts(@PathVariable UUID debtId,
 			@Validated @RequestBody Mono<DebtRepayment> repayment) {
-		return repayment.then(r -> debtService.repay(debtId, r));
+		return repayment.flatMap(r -> debtService.repay(debtId, r));
 	}
 }

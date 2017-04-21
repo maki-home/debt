@@ -46,22 +46,22 @@ public class DebtService {
 	}
 
 	public Mono<Debt> repay(UUID deptId, DebtRepayment repayment) {
-		return findOne(deptId).then(dept -> checkClear(dept, repayment)
-				.filter(cleared -> !cleared).then(cleared -> {
+		return findOne(deptId).flatMap(dept -> checkClear(dept, repayment)
+				.filter(cleared -> !cleared).flatMap(cleared -> {
 					if (repayment.getRepaymentDate() == null) {
 						repayment.setRepaymentDate(LocalDate.now());
 					}
 					repayment.setDebt(dept);
 					repayment.setCreatedAt(Instant.now());
 					dept.getRepayments().add(repayment);
-					return this.debtRepository.delete(deptId).then(
+					return this.debtRepository.delete(deptId).flatMap(
 							v -> this.debtRepository.save(dept).then(Mono.just(dept)));
-				})).otherwiseIfEmpty(Mono.empty());
+				})).onErrorResume(t -> Mono.empty());
 	}
 
 	private Mono<Boolean> checkClear(Debt debt, DebtRepayment repayment) {
 		return this.debtRepository.contains(DebtClear.builder().debt(debt).build())
-				.then(x -> {
+				.flatMap(x -> {
 					if (x) {
 						return Mono.error(new IllegalStateException(
 								"The given dept has been cleared."));
@@ -76,8 +76,9 @@ public class DebtService {
 								.save(DebtClear.builder().debt(debt)
 										.clearDate(LocalDate.now())
 										.createdAt(Instant.now()).build())
-								.then(v -> this.debtRepository.delete(debt.getDebtId()))
-								.then(v -> Mono.just(true));
+								.flatMap(
+										v -> this.debtRepository.delete(debt.getDebtId()))
+								.flatMap(v -> Mono.just(true));
 					}
 					return Mono.just(false);
 				});

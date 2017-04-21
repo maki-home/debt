@@ -17,7 +17,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Configuration
 public class AppConfig {
 	@Bean
-	WebClient webClient() {
+	WebClient webClient(RedisConnectionFactory redisConnectionFactory) {
 		return WebClient.builder()
 				.defaultHeader(HttpHeaders.USER_AGENT, "am.ik.home.DebtApplication")
 				.build();
@@ -29,7 +29,7 @@ public class AppConfig {
 		String password = resource.getClientSecret();
 		return webClient.filter(basicAuthentication(username, password)).get()
 				.uri(resource.getJwt().getKeyUri()).exchange()
-				.then(x -> x.bodyToMono(Map.class))
+				.flatMap(x -> x.bodyToMono(Map.class))
 				.map(key -> new RsaVerifier(key.get("value").toString())).block();
 	}
 

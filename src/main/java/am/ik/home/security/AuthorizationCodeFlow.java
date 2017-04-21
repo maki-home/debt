@@ -64,14 +64,14 @@ public class AuthorizationCodeFlow {
 						.queryParam("scope", String.join(" ", details.getScope()))
 						.build())
 				.header(HttpHeaders.AUTHORIZATION, "Basic " + new String(basic))
-				.exchange().then(x -> x.bodyToMono(JsonNode.class)).then(node -> {
+				.exchange().flatMap(x -> x.bodyToMono(JsonNode.class)).flatMap(node -> {
 					String token = node.get("access_token").asText();
 					Long expiresIn = node.get("expires_in").asLong();
 					AccessToken accessToken = AccessToken.builder().value(token)
 							.expiration(Instant.now().plusSeconds(expiresIn)).build();
 					return exchange.getSession().doOnNext(s -> s.getAttributes()
 							.put(AccessToken.ATTRIBUTE_NAME, accessToken));
-				}).then(x -> {
+				}).flatMap(x -> {
 					ServerHttpResponse response = exchange.getResponse();
 					response.setStatusCode(HttpStatus.FOUND);
 					response.getHeaders().setLocation(

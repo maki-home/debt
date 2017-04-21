@@ -79,12 +79,13 @@ public class JwtOAuth2WebFilter implements WebFilter {
 						.equalsIgnoreCase("bearer ")) {
 			String token = authorization.substring(BEARER_STRLEN);
 			return user(token)
-					.then(user -> chain
+					.flatMap(user -> chain
 							.filter(exchange.mutate().principal(Mono.just(user)).build()))
-					.otherwise(TokenExpiredException.class, t -> expired(exchange, token))
-					.otherwise(InvalidSignatureException.class,
+					.onErrorResume(TokenExpiredException.class,
+							t -> expired(exchange, token))
+					.onErrorResume(InvalidSignatureException.class,
 							t -> invalidToken(exchange, token))
-					.otherwise(IllegalArgumentException.class,
+					.onErrorResume(IllegalArgumentException.class,
 							t -> invalidToken(exchange, token));
 		}
 		else {
@@ -98,7 +99,7 @@ public class JwtOAuth2WebFilter implements WebFilter {
 			if (!s.isStarted()) {
 				s.start();
 			}
-		}).then(s -> {
+		}).flatMap(s -> {
 			if (isLoginRequest(exchange)) {
 				return authorizationCodeFlow.token(exchange);
 			}
@@ -107,9 +108,9 @@ public class JwtOAuth2WebFilter implements WebFilter {
 						.map(session -> session.getAttribute(AccessToken.ATTRIBUTE_NAME))
 						.map(Optional::get).cast(AccessToken.class)
 						.filter(token -> !token.isExpired())
-						.then(token -> chain.filter(exchange.mutate()
+						.flatMap(token -> chain.filter(exchange.mutate()
 								.principal(user(token.getValue())).build()))
-						.otherwise(NoSuchElementException.class,
+						.onErrorResume(NoSuchElementException.class,
 								e -> authorizationCodeFlow.authorize(exchange));
 			}
 		});
