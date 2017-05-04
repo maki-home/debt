@@ -18,3 +18,4 @@ applications:
       security.oauth2.client.client-id: 65611f12-e0cb-46e3-a330-9f434df45e36
       security.oauth2.client.client-secret: 70c0da0a-18f7-4fe9-991e-3cc3ad8c7717
       logging.level.reactor.ipc.netty.channel.ChannelOperationsHandler: INFO
+      _JAVA_OPTIONS: -Duser.timezone=Asia/Tokyo -Duser.language=ja -Duser.country=JP -Djava.security.egd=file:/dev/./urandom -Dio.lettuce.core.epoll=false
