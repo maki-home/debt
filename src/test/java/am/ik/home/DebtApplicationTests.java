@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,7 +89,6 @@ public class DebtApplicationTests {
 	}
 
 	@Test
-	@Ignore("TODO validationが効かなくなった")
 	public void postInvalidDebts() {
 		postInvalidDebts(Debt.builder().build(), 5);
 		postInvalidDebts(Debt.builder().amount(10L).build(), 4);
@@ -109,7 +107,6 @@ public class DebtApplicationTests {
 	}
 
 	@Test
-	@Ignore("TODO validationが効かなくなった")
 	public void postInvalidDebtRepayments() {
 		UUID debtId = UUID.randomUUID();
 		DebtRepayment repayment = DebtRepayment.builder()
