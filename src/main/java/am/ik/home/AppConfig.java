@@ -7,9 +7,7 @@ import java.util.Map;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.ResourceServerProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.jwt.crypto.sign.RsaVerifier;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -31,11 +29,5 @@ public class AppConfig {
 				.uri(resource.getJwt().getKeyUri()).exchange()
 				.flatMap(x -> x.bodyToMono(Map.class))
 				.map(key -> new RsaVerifier(key.get("value").toString())).block();
-	}
-
-	@Profile("!cloud")
-	@Bean
-	RedisConnectionFactory redisConnectionFactory() {
-		return new LettuceConnectionFactory();
 	}
 }
