@@ -3,6 +3,7 @@ package am.ik.home.debt;
 import java.util.UUID;
 
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -10,7 +11,6 @@ import org.springframework.stereotype.Repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import am.ik.home.redis.JacksonRedisSerializerWrapper;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -28,10 +28,12 @@ public class DebtRedisRepository implements DebtRepository {
 	public DebtRedisRepository(ReactiveRedisTemplate<Object, Object> redisTemplate,
 			ObjectMapper objectMapper) {
 		RedisSerializer<String> keySerializer = new StringRedisSerializer();
-		RedisSerializer<Debt> debtSerializer = new JacksonRedisSerializerWrapper<>(
-				Debt.class, objectMapper);
-		RedisSerializer<DebtClear> debtClearSerializer = new JacksonRedisSerializerWrapper<>(
-				DebtClear.class, objectMapper);
+		Jackson2JsonRedisSerializer<Debt> debtSerializer = new Jackson2JsonRedisSerializer<>(
+				Debt.class);
+		debtSerializer.setObjectMapper(objectMapper);
+		Jackson2JsonRedisSerializer<DebtClear> debtClearSerializer = new Jackson2JsonRedisSerializer<>(
+				DebtClear.class);
+		debtClearSerializer.setObjectMapper(objectMapper);
 		this.redisTemplate = redisTemplate;
 		this.debtSerializationContext = RedisSerializationContext
 				.<String, Debt>newSerializationContext().key(keySerializer)
