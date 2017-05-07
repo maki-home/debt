@@ -29,7 +29,7 @@
 		<dependency>
 			<groupId>am.ik.home</groupId>
 			<artifactId>uaa-client</artifactId>
-			<version>1.7.0</version>
+			<version>1.9.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
